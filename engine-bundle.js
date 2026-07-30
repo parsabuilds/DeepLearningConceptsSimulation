@@ -1860,6 +1860,7 @@ class DLWorld extends HTMLElement {
     this.appendChild(this.tip);
     this.ray=new THREE.Raycaster(); this.mouse=new THREE.Vector2(); this._hover=null;
     r.domElement.addEventListener('pointermove',e=>this._onMove(e));
+    r.domElement.addEventListener('pointerdown',e=>{this._pdown={x:e.clientX,y:e.clientY};});
     r.domElement.addEventListener('click',e=>this._onClick(e));
     new ResizeObserver(()=>this._resize()).observe(this); this._resize();
     this._last=performance.now();
@@ -1917,7 +1918,7 @@ class DLWorld extends HTMLElement {
     if(this._hover&&this._hover!==o&&this._hover.userData.onHover) this._hover.userData.onHover(false);
     if(o&&o.userData.onHover&&this._hover!==o) o.userData.onHover(true);
     this._hover=o; }
-  _onClick(e){ this._ndc(e); const r=this._cast(); if(r&&r.o.userData.onClick) r.o.userData.onClick(r.o,r.h); }
+  _onClick(e){ if(this._pdown&&Math.hypot(e.clientX-this._pdown.x,e.clientY-this._pdown.y)>6) return; this._ndc(e); const r=this._cast(); if(r&&r.o.userData.onClick) r.o.userData.onClick(r.o,r.h); }
   _resize(){ const w=this.clientWidth||2,h=this.clientHeight||2; const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1; this.renderer.setPixelRatio(Math.min(devicePixelRatio,2)*z); this.renderer.setSize(w,h,false); this.camera.aspect=w/h; this.camera.updateProjectionMatrix(); }
 }
 customElements.define('dl-world',DLWorld);
