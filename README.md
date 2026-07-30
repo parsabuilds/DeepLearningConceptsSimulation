@@ -4,6 +4,9 @@ An interactive 3D museum that teaches the lineage of deep learning architectures
 
 ![The Lineage screenshot](screenshot.png)
 
+| ![The Perceptron — training a decision plane on AND/XOR](screenshot2.png) | ![Gradient descent on a loss landscape + backprop blame flow](screenshot3.png) | ![The CNN — convolution, pooling, and the ImageNet decade](screenshot4.png) |
+|---|---|---|
+
 ## Stations
 
 | Chapter | Stations |
