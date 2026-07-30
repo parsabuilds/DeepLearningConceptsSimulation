@@ -16,23 +16,27 @@ An interactive 3D museum that teaches the lineage of deep learning architectures
 
 Each station has guided "watch" steps, hover tooltips on every 3D object, interactive controls (fire, shuffle, toggle masking…), and a quiz.
 
-## Running it
+## Try it
+
+**Live: https://parsabuilds.github.io/DeepLearningConceptsSimulation/**
+
+## Running it locally
 
 No build step, no dependencies to install — it's plain HTML + JS with a vendored copy of three.js.
 
 ```bash
 # from the repo root
 python3 -m http.server 8000
-# then open http://localhost:8000/The%20Lineage.dc.html
+# then open http://localhost:8000
 ```
 
-(Opening `The Lineage.dc.html` directly from the file system works in most browsers too.)
+(Opening `index.html` directly from the file system works in most browsers too.)
 
 ## Project structure
 
 | File | What it is |
 |---|---|
-| `The Lineage.dc.html` | Entry point — UI shell, station definitions, lesson text, quizzes |
+| `index.html` | Entry point — UI shell, station definitions, lesson text, quizzes |
 | `support.js` | Loader / runtime support |
 | `engine-bundle.js` | Pre-built bundle of the engine + all scenes (what the page actually loads) |
 | `engine.js` | 3D world engine source (`<dl-world>` custom element, camera, picking, HUD) |
