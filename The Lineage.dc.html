@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<meta name="ext-resource-dependency" content="./vendor/three-core.js" data-resource-id="three-core" />
+<meta name="ext-resource-dependency" content="./vendor/three-main.js" data-resource-id="three-main" />
+<template id="__bundler_thumbnail" data-bg-color="#070b14">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="#070b14"/><g stroke="#2b3a58" stroke-width="2"><line x1="42" y1="72" x2="60" y2="46"/><line x1="60" y1="46" x2="78" y2="72"/><line x1="42" y1="72" x2="78" y2="72"/></g><circle cx="42" cy="72" r="7" fill="#22d3ee"/><circle cx="60" cy="46" r="7" fill="#a78bfa"/><circle cx="78" cy="72" r="7" fill="#f59e0b"/></svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta charset="utf-8"></meta>
+  <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+  <title>The Lineage — deep learning, one wall at a time</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"></link>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"></link>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"></link>
+  <script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
+  }
+}
+  </script>
+  <script type="module" src="./engine-bundle.js"></script>
+  <style>
+    html, body { margin:0; padding:0; background:#070b14; }
+    a { color:#67e8f9; } a:hover { color:#a5f3fc; }
+    ::selection { background:rgba(167,139,250,0.35); }
+    *::-webkit-scrollbar { width:8px; } *::-webkit-scrollbar-thumb { background:#243350; border-radius:4px; }
+    @keyframes capIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  </style>
+</helmet>
+<div style="position:relative; width:100vw; height:100vh; overflow:hidden; background:#070b14; font-family:'Space Grotesk',sans-serif; color:#dce6f7;">
+  <x-import component-from-global-scope="dl-world" style="position:absolute; inset:0; width:100%; height:100%;" hint-size="100%,100%"></x-import>
+
+  <div style="position:absolute; top:14px; left:16px; display:flex; flex-direction:column; gap:8px; pointer-events:none;">
+    <div style="pointer-events:auto;">
+      <div style="font-size:19px; font-weight:700; letter-spacing:0.16em; color:#eef3ff;">THE LINEAGE</div>
+      <div style="font-size:11.5px; color:#8ea3c8; font-family:'IBM Plex Mono',monospace;">deep learning, one wall at a time</div>
+    </div>
+    <div style="display:flex; gap:5px; flex-wrap:wrap; max-width:520px; pointer-events:auto;">
+      <sc-for list="{{ chips }}" as="c" hint-placeholder-count="14">
+        <button title="{{ c.title }}" onClick="{{ c.go }}" style="{{ c.style }}">{{ c.text }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:absolute; top:14px; right:16px; display:flex; gap:8px; align-items:center;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#8ea3c8; background:rgba(10,15,28,0.8); border:1px solid rgba(148,163,184,0.18); padding:6px 10px; border-radius:9px;">quiz {{ score }}</div>
+    <button onClick="{{ startTour }}" title="how to use this" style="font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:#7fd8f0; background:rgba(10,15,28,0.8); border:1px solid rgba(103,232,249,0.35); padding:6px 11px; border-radius:9px; cursor:pointer;">? tour</button>
+    <button onClick="{{ togglePanel }}" style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#dce6f7; background:rgba(10,15,28,0.8); border:1px solid rgba(148,163,184,0.25); padding:6px 10px; border-radius:9px; cursor:pointer;">{{ panelBtnLabel }}</button>
+  </div>
+
+  <div style="position:absolute; top:58px; right:16px; bottom:16px; width:min(392px, 38vw); display:flex; flex-direction:column; gap:10px; pointer-events:none;">
+  <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ true }}">
+  <div ref="{{ lessonPanelRef }}" style="pointer-events:auto; flex:1; min-height:0; display:flex; flex-direction:column; background:linear-gradient(180deg, #123a3d 0%, #0c2a30 100%); border:1px solid rgba(103,232,249,0.45); border-radius:16px; overflow:hidden; box-shadow:0 18px 60px rgba(0,0,0,0.65), 0 0 36px rgba(45,212,191,0.25);">
+    <div style="padding:14px 16px 12px; border-bottom:1px solid rgba(148,163,184,0.14); flex-shrink:0;">
+      <div style="display:flex; align-items:baseline; gap:10px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:{{ era }};">{{ num }}</div>
+        <div style="font-size:20px; font-weight:700; color:#eef3ff;">{{ name }}</div>
+      </div>
+      <div style="margin-top:6px; height:2px; border-radius:2px; background:{{ era }}; opacity:0.7; width:56px;"></div>
+    </div>
+    <div ref="{{ panelScrollRef }}" style="flex:1; overflow-y:auto; padding:14px 16px 18px; display:flex; flex-direction:column; gap:12px;">
+
+      <sc-if value="{{ hasBlock }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(124,58,237,0.12); border:1px solid rgba(167,139,250,0.35); border-radius:12px; padding:11px 13px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <div style="font-weight:700; font-size:13.5px; color:#cbb8ff;">{{ blockName }}</div>
+            <button onClick="{{ blockClose }}" style="background:none; border:none; color:#8ea3c8; cursor:pointer; font-size:14px;">✕</button>
+          </div>
+          <div style="font-size:13px; line-height:1.5; color:#c6d2ea; margin-top:4px;">{{ blockText }}</div>
+          <sc-if value="{{ blockJumpLabel }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ blockJump }}" style="margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#0a0f1c; background:#a78bfa; border:none; padding:5px 10px; border-radius:8px; cursor:pointer; font-weight:600;">{{ blockJumpLabel }}</button>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasWall }}" hint-placeholder-val="{{ true }}">
+        <div style="background:rgba(76,12,28,0.35); border:1px solid rgba(244,63,94,0.3); border-radius:12px; padding:11px 13px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#ff9db0;">THE WALL</div>
+          <div style="font-size:13.5px; line-height:1.5; color:#f4d7dd; margin-top:5px;">{{ wall }}</div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <sc-for list="{{ ideas }}" as="p" hint-placeholder-count="2">
+          <div style="font-size:13.5px; line-height:1.58; color:#c6d2ea;">{{ p }}</div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ hasWatch }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px solid rgba(148,163,184,0.16); border-radius:12px; padding:11px 13px; background:rgba(16,24,44,0.5);">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#7fd8f0;">TRY IT — IN THE 3D SPACE</div>
+          <div style="display:flex; flex-direction:column; gap:7px; margin-top:8px;">
+            <sc-for list="{{ watch }}" as="w" hint-placeholder-count="3">
+              <div style="display:flex; gap:8px; font-size:13px; line-height:1.5; color:#c6d2ea;"><div style="color:#67e8f9; flex-shrink:0;">▸</div><div>{{ w }}</div></div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showMath }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px solid rgba(167,139,250,0.25); border-radius:12px; padding:11px 13px; background:rgba(30,20,60,0.35);">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#cbb8ff;">THE MATH — WHAT YOU MUST KNOW FOR THE EXAM</div>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+            <sc-for list="{{ math }}" as="m" hint-placeholder-count="2">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.55; color:#e6dcff;">{{ m }}</div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ mathNote }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:11.5px; color:#8ea3c8; margin-top:7px;">{{ mathNote }}</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-for list="{{ quiz }}" as="q" hint-placeholder-count="1">
+        <div style="border:1px solid rgba(245,158,11,0.28); border-radius:12px; padding:11px 13px; background:rgba(58,38,8,0.28);">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#ffd9a0;">QUIZ — PREDICT BEFORE YOU PEEK</div>
+          <div style="font-size:13.5px; line-height:1.5; color:#f2e8d5; margin-top:6px; font-weight:600;">{{ q.q }}</div>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:9px;">
+            <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ q.showWhy }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px; line-height:1.5; color:#d8e2f5; margin-top:9px; border-top:1px dashed rgba(148,163,184,0.25); padding-top:8px;">{{ q.why }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{ hasParts }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid rgba(148,163,184,0.16); border-radius:12px; padding:11px 13px; background:rgba(16,24,44,0.5);">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#cbb8ff;">YOU ALREADY KNOW EVERY PART</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+            <sc-for list="{{ parts }}" as="p" hint-placeholder-count="6">
+              <button onClick="{{ p.go }}" style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#cbb8ff; background:rgba(124,58,237,0.14); border:1px solid rgba(167,139,250,0.35); padding:5px 9px; border-radius:8px; cursor:pointer;">{{ p.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="background:rgba(6,50,38,0.35); border:1px solid rgba(52,211,153,0.3); border-radius:12px; padding:11px 13px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#7ce8bd;">EXAM TAKEAWAY</div>
+        <div style="font-size:13.5px; line-height:1.5; color:#d7f5e8; margin-top:5px; font-weight:600;">{{ take }}</div>
+      </div>
+      <sc-if value="{{ hasTrap }}" hint-placeholder-val="{{ true }}">
+        <div style="border:1px dashed rgba(245,158,11,0.4); border-radius:12px; padding:11px 13px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#ffd9a0;">CLASSIC TRAP</div>
+          <div style="font-size:13px; line-height:1.5; color:#ead9bd; margin-top:5px;">{{ trap }}</div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex; gap:8px; margin-top:2px;">
+        <sc-if value="{{ hasPrev }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ goPrev }}" style="flex-shrink:0; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9fb4dd; background:rgba(16,24,44,0.7); border:1px solid rgba(148,163,184,0.2); padding:9px 12px; border-radius:10px; cursor:pointer;">←</button>
+        </sc-if>
+        <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ goNext }}" style="flex:1; text-align:left; font-size:12.5px; color:#eef3ff; background:rgba(34,48,80,0.7); border:1px solid rgba(148,163,184,0.25); padding:8px 12px; border-radius:10px; cursor:pointer; line-height:1.4;">
+            <span style="display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.12em; color:#8ea3c8;">NEXT WALL</span><span style="display:block; margin-top:2px;">{{ nextLabel }}</span>
+          </button>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+  <div ref="{{ ctrlPanelRef }}" style="pointer-events:auto; margin-top:auto; flex-shrink:0; max-height:52%; display:flex; flex-direction:column; background:rgba(9,13,26,0.95); border:1px solid rgba(245,158,11,0.4); border-radius:16px; overflow:hidden; box-shadow:0 18px 60px rgba(0,0,0,0.65), 0 0 26px rgba(245,158,11,0.1);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; padding:9px 14px 8px; border-bottom:1px solid rgba(148,163,184,0.14); flex-shrink:0;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#ffd9a0;">CONTROLS</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:{{ era }};">station {{ num }}</div>
+    </div>
+    <div style="flex:1; min-height:0; overflow-y:auto; padding:10px 14px 11px; display:flex; flex-direction:column; gap:9px;">
+      <sc-if value="{{ hasCtrls }}" hint-placeholder-val="{{ true }}">
+        <sc-for list="{{ ctrls }}" as="c" hint-placeholder-count="3">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <sc-if value="{{ c.isSlider }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:#9fb4dd;"><span>{{ c.label }}</span><span style="font-family:'IBM Plex Mono',monospace; color:#e8eeff;">{{ c.valStr }}</span></div>
+              <input type="range" min="{{ c.min }}" max="{{ c.max }}" step="{{ c.step }}" value="{{ c.val }}" onChange="{{ c.onChange }}" style="width:100%; accent-color:#a78bfa; cursor:pointer;"></input>
+            </sc-if>
+            <sc-if value="{{ c.isSeg }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:12px; color:#9fb4dd;">{{ c.label }}</div>
+              <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                <sc-for list="{{ c.opts }}" as="o" hint-placeholder-count="3">
+                  <button onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ c.isBtn }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.fire }}" style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600; color:#07202b; background:#67e8f9; border:none; padding:8px 12px; border-radius:9px; cursor:pointer; text-align:center;">{{ c.label }}</button>
+            </sc-if>
+            <sc-if value="{{ c.isTog }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ c.flip }}" style="{{ c.style }}">{{ c.togLabel }}</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{ noCtrls }}" hint-placeholder-val="{{ false }}">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#5c729a;">no knobs on this scene — orbit &amp; click things</div>
+      </sc-if>
+      <sc-if value="{{ hasReadouts }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <sc-for list="{{ readouts }}" as="r" hint-placeholder-count="3">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#9fb4dd; background:rgba(16,24,44,0.7); border:1px solid rgba(148,163,184,0.14); padding:5px 9px; border-radius:8px;">{{ r.k }}: <span style="color:#e8eeff;">{{ r.v }}</span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex; gap:6px; padding:10px 14px; border-top:1px solid rgba(148,163,184,0.14); flex-shrink:0;">
+      <button onClick="{{ togglePlay }}" style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:12.5px; font-weight:600; color:#07202b; background:#7ce8bd; border:none; padding:8px 14px; border-radius:10px; cursor:pointer;">{{ playLabel }}</button>
+      <sc-if value="{{ canStep }}" hint-placeholder-val="{{ false }}"><button onClick="{{ doStep }}" style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#dce6f7; background:rgba(16,24,44,0.85); border:1px solid rgba(148,163,184,0.25); padding:8px 14px; border-radius:10px; cursor:pointer;">step ▸</button></sc-if>
+      <button onClick="{{ doReplay }}" style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#dce6f7; background:rgba(16,24,44,0.85); border:1px solid rgba(148,163,184,0.25); padding:8px 14px; border-radius:10px; cursor:pointer;">⟲ rebuild</button>
+    </div>
+  </div>
+  </div>
+
+  <div style="position:absolute; left:16px; bottom:16px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#5c729a; background:rgba(9,13,26,0.7); padding:5px 9px; border-radius:8px;">drag: orbit · scroll: zoom · right-drag: pan · hover things</div>
+
+  <sc-if value="{{ tourOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:20; overflow:hidden; pointer-events:none;">
+      <div style="position:absolute; border:2px solid #67e8f9; border-radius:14px; box-shadow:0 0 0 4000px rgba(4,7,15,0.58), 0 0 24px rgba(103,232,249,0.35); transition:all 0.35s ease; pointer-events:none; left:{{ tourBox.l }}; top:{{ tourBox.t }}; width:{{ tourBox.w }}; height:{{ tourBox.h }};"></div>
+      <div style="position:absolute; max-width:min(400px, 86vw); background:rgba(9,13,26,0.97); border:1px solid rgba(103,232,249,0.4); border-radius:14px; padding:16px 18px; transition:all 0.35s ease; pointer-events:auto; box-shadow:0 12px 40px rgba(0,0,0,0.5); left:{{ tourCard.l }}; top:{{ tourCard.t }}; right:{{ tourCard.r }}; bottom:{{ tourCard.b }}; transform:{{ tourCard.tf }};">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.14em; color:#7fd8f0;">HOW TO USE · {{ tourNum }}</div>
+          <button onClick="{{ tourSkip }}" style="background:none; border:none; color:#8ea3c8; cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px;">skip ✕</button>
+        </div>
+        <div style="font-size:16.5px; font-weight:700; color:#eef3ff; margin-top:7px;">{{ tourTitle }}</div>
+        <div style="font-size:13.5px; line-height:1.55; color:#c6d2ea; margin-top:6px;">{{ tourText }}</div>
+        <sc-if value="{{ tourChecklist }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; flex-direction:column; gap:7px; margin-top:12px;">
+            <sc-for list="{{ tourTasks }}" as="tk" hint-placeholder-count="3">
+              <div style="{{ tk.rowStyle }}">
+                <div style="{{ tk.boxStyle }}">{{ tk.mark }}</div>
+                <div style="position:relative; width:22px; height:32px; border:2px solid #8ea3c8; border-radius:11px; flex:none; background:rgba(10,15,28,0.6);">
+                  <div style="{{ tk.leftStyle }}"></div>
+                  <div style="{{ tk.rightStyle }}"></div>
+                  <div style="{{ tk.wheelStyle }}"></div>
+                </div>
+                <div style="font-size:12.5px; color:#dce6f7; line-height:1.35;">{{ tk.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-top:13px;">
+          <div style="display:flex; gap:5px;">
+            <sc-for list="{{ tourDots }}" as="d" hint-placeholder-count="7">
+              <div style="{{ d.style }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex; gap:7px;">
+            <sc-if value="{{ tourHasBack }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ tourBack }}" style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9fb4dd; background:rgba(16,24,44,0.8); border:1px solid rgba(148,163,184,0.25); padding:7px 12px; border-radius:9px; cursor:pointer;">← back</button>
+            </sc-if>
+            <button onClick="{{ tourNext }}" disabled="{{ tourNextDisabled }}" style="{{ tourNextStyle }}">{{ tourNextLabel }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ capOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; left:50%; bottom:86px; transform:translateX(-50%); max-width:min(620px, 70vw); background:rgba(9,13,26,0.92); border:1px solid rgba(148,163,184,0.3); border-radius:12px; padding:10px 34px 10px 16px; font-size:14px; font-weight:600; color:#eef3ff; text-align:center; animation:capIn 0.25s ease;">{{ capText }}<div onClick="{{ dismissCap }}" title="dismiss" style="position:absolute; top:4px; right:8px; cursor:pointer; color:#8ea0bf; font-size:15px; line-height:1; padding:2px;" style-hover="color:#eef3ff;">&#215;</div></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;showEquations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Study mode&quot;},&quot;motion&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;calm&quot;],&quot;default&quot;:&quot;calm&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Study mode&quot;}}">
+class Component extends DCLogic {
+  panelScrollRef = React.createRef();
+  lessonPanelRef = React.createRef();
+  ctrlPanelRef = React.createRef();
+  state = { idx:0, playing:true, panelOpen:true, readouts:[], cap:'', capOn:false, quiz:{}, ctrl:{}, block:null, ready:false, tour:-1, tourTasks:{drag:false,scroll:false,rdrag:false} };
+
+  TOUR(){ return [
+    { title:'Welcome to The Lineage', text:'13 interactive 3D scenes tell one story: every deep-learning architecture exists because the previous one hit a wall. This 60-second tour shows you the ropes.',
+      box:null, card:{c:true} },
+    { title:'Move around the 3D world', text:'Do all three moves in the world behind this card — each one ticks itself off. Next unlocks when you\u2019ve done them all.',
+      box:{l:'25%',t:'25%',w:'50%',h:'50%'}, card:{b:'24px',l:'24px'}, dim:false, tasks:true },
+    { title:'Hover & click things', text:'Almost everything in the 3D space is alive: hover any object for a tooltip explaining what it is. On the map, each glass globe previews what\u2019s inside its station — click one to travel there. The red tags between islands are the \u201cwhy was this invented?\u201d answers.',
+      box:{l:'25%',t:'25%',w:'50%',h:'50%'}, card:{b:'12%',cx:true}, dim:false },
+    { title:'Jump between stations', text:'These numbered chips are the 14 stations (00 = the map). Click any to jump. A chip turns its era color once you\u2019ve answered that station\u2019s quiz.',
+      box:{l:'8px',t:'8px',w:'540px',h:'118px'}, card:{l:'24px',t:'140px'} },
+    { title:'Read the lesson panel', text:'The upper-right panel is the lesson: the wall that broke the previous idea, the fix, the exact equations for the exam, a quiz, and the takeaway. Scroll it — then use NEXT WALL at the bottom to walk the story in order.',
+      box:'lesson', card:{t:'26%',l:'24px'} },
+    { title:'Control the simulation', text:'Every knob lives HERE, below the lesson — same spot at every station, nothing to scroll for. Sliders, TRAIN buttons and dataset switches drive the 3D scene live; the bottom row plays, pauses and rebuilds it (a step \u25b8 button appears on the sequence stations 06, 07, 09). The TRY IT box in the lesson tells you what\u2019s worth trying.',
+      box:'ctrl', card:{t:'32%',l:'24px'} },
+    { title:'That\u2019s it — start at 00', text:'Walk the islands left to right, answer the quizzes (score top-right), and read the red tags out loud. Reopen this tour anytime with the ? tour button.',
+      box:null, card:{c:true} }
+  ]; }
+
+  ST(){ if(this._st) return this._st;
+    const S=(o)=>o;
+    this._st=[
+    S({id:'map',num:'00',name:'The Map',era:'#e2e8f0',wall:null,
+      ideas:['Thirteen ideas, one story: every architecture exists because the previous one hit a wall. The red tags on the arrows are those walls — and they are exactly the "why do we need X?" questions your exam will ask.','Walk it in order (→), or click any island to jump. Come back here whenever you lose the thread.'],
+      watch:['Orbit the whole timeline — drag to spin it.','Read every red tag out loud. That\u2019s the connective tissue.','Click island 01 to begin.'],
+      math:null,ctrls:[],
+      quiz:[{q:'Which wall directly forced ATTENTION to be invented?',opts:['The single fixed-size context vector c in encoder–decoder','XOR not being separable','Vanishing gradients in deep MLPs'],ans:0,why:'Attention exists so the decoder can look back at ALL encoder states instead of squeezing everything through one vector (station 8 → 9).'}],
+      take:'Architectures are patches. Learn the walls and the fixes name themselves.',trap:null,next:'a machine that weighs evidence'}),
+    S({id:'neuron',num:'01',name:'The Neuron',era:'#22d3ee',
+      wall:'Start of the story. Before anything can learn, we need the atom: a unit that turns many inputs into one opinion.',
+      ideas:['A neuron is a weighted vote. Each input xᵢ is multiplied by a weight wᵢ (how much it matters — the synapse), summed with a bias b (how easy it is to fire), then squashed by an activation f.','Thicker pipe = bigger |w|. Amber = positive (excites), red = negative (inhibits). The pulses you see are inputs flowing in every second.'],
+      watch:['Drag w₂ negative and watch its pipe turn red — it now vetoes the output.','Set w₃ = 0: input x₃ keeps arriving but contributes nothing.','Swap activations: step votes yes/no, σ gives a soft 0–1, ReLU passes positives untouched.'],
+      math:['z = w₁x₁ + w₂x₂ + w₃x₃ + b','a = f(z),   f ∈ { σ, tanh, ReLU, step }'],
+      ctrls:[{t:'slider',k:'w1',label:'weight w₁',min:-2,max:2,step:0.1,d:1.2},{t:'slider',k:'w2',label:'weight w₂',min:-2,max:2,step:0.1,d:-0.8},{t:'slider',k:'w3',label:'weight w₃',min:-2,max:2,step:0.1,d:0.6},{t:'slider',k:'b',label:'bias b',min:-2,max:2,step:0.1,d:0},{t:'seg',k:'act',label:'activation f',opts:['sigmoid','tanh','relu','step'],d:'sigmoid'}],
+      quiz:[{q:'Set w₃ = 0. What does x₃ contribute to the output?',opts:['Nothing — it\u2019s multiplied by zero','Its raw value, unweighted','Only through the bias'],ans:0,why:'w₃x₃ = 0·x₃ = 0. Weights ARE the knowledge: what the network learns is which inputs matter.'}],
+      take:'One neuron = weighted sum + bias + nonlinearity. Everything that follows is wiring these together.',
+      trap:'Remove the nonlinearity and a stack of layers collapses into ONE linear map. The activation is what makes depth worth anything.',
+      next:'make it DECIDE — and learn its own weights'}),
+    S({id:'perceptron',num:'02',name:'The Perceptron',era:'#22d3ee',
+      wall:'A neuron computes a number. We need a unit that CLASSIFIES — and sets its own weights from mistakes.',
+      ideas:['Perceptron = neuron with a step activation plus a learning rule: when it misclassifies, nudge w toward the mistake (w ← w + η·y·x). Geometrically its decision boundary is the standing plane: a single straight cut through input space.','Red halos mark misclassified points. Training literally rotates and shifts the cut until the halos die.'],
+      watch:['Press TRAIN on AND — watch the plane settle. Convergence is GUARANTEED here.','Switch data to XOR and train. Watch it thrash. Forever.','Orbit down low to convince yourself: no straight cut can ever put (0,1),(1,0) on one side and (0,0),(1,1) on the other.'],
+      math:['ŷ = step(w·x + b)','if wrong:  w ← w + η·y·x,   b ← b + η·y'],
+      ctrls:[{t:'seg',k:'data',label:'dataset',opts:['AND','OR','XOR'],d:'AND'},{t:'btn',k:'train',label:'TRAIN (perceptron rule)'},{t:'btn',k:'reset',label:'randomize weights'},{t:'slider',k:'w1',label:'w₁ (manual)',min:-2,max:2,step:0.1,d:0.6},{t:'slider',k:'w2',label:'w₂ (manual)',min:-2,max:2,step:0.1,d:-0.4},{t:'slider',k:'b',label:'b (manual)',min:-2,max:2,step:0.1,d:-0.2}],
+      quiz:[{q:'Can a single perceptron learn XOR?',opts:['No — XOR is not linearly separable','Yes, with a better learning rate','Yes, with more training epochs'],ans:0,why:'One unit = one straight cut, and no straight cut separates XOR. Minsky and Papert proved it in 1969 — it helped trigger the first AI winter.'}],
+      take:'One unit = one linear cut. The perceptron converges IF AND ONLY IF the data is linearly separable.',
+      trap:'\u201cThe perceptron always converges\u201d is only true for separable data. On XOR it never settles — that\u2019s the whole point.',
+      next:'XOR broke it → stack neurons, bend space'}),
+    S({id:'mlp',num:'03',name:'MLP · Neural Net · Feedforward',era:'#22d3ee',
+      wall:'One straight cut failed XOR. The fix is not a better cut — it\u2019s cutting in a BENT space.',
+      ideas:['Stack neurons in layers; each layer\u2019s outputs feed the next. Hidden layers RE-REPRESENT the input — they move the points into new coordinates where the classes drift apart. The output layer then makes one easy straight cut there.','Untangle the names: an MLP is neurons in fully-connected layers. \u201cFeedforward\u201d means signal flows one way, no loops (CNNs are feedforward too!). \u201cNeural network\u201d is the family name for all of it.'],
+      watch:['Press FOLD SPACE: the four XOR points travel from input space to hidden space (h₁,h₂) — watch them become separable, then the violet cut slides in.','Click any XOR point to fire it through the network and read its output.','Orbit INSIDE the network — the layers have real depth here.'],
+      math:['h = f(W₁x + b₁)        (hidden layer: re-map)','ŷ = f(W₂h + b₂)        (output: one cut in h-space)'],
+      mathNote:'Universal approximation: with enough hidden units, an MLP can fit any reasonable function. Depth makes it efficient.',
+      ctrls:[{t:'btn',k:'fold',label:'FOLD SPACE (solve XOR)'},{t:'btn',k:'reset',label:'reset points'}],
+      quiz:[{q:'What does a hidden layer actually do to the data?',opts:['Re-represents it in new coordinates','Memorizes the training set','Adds more straight cuts in the ORIGINAL space'],ans:0,why:'Each layer is a learned change of coordinates. XOR is unsolvable in (x₁,x₂) but trivial in (h₁,h₂). That\u2019s representation learning in miniature.'}],
+      take:'Depth = learned re-representation. XOR is trivial in the right coordinates.',
+      trap:'\u201cFeedforward\u201d ≠ \u201cfully-connected\u201d. Feedforward only means NO cycles — a CNN is feedforward; an RNN is not.',
+      next:'thousands of weights. Who sets them?'}),
+    S({id:'train',num:'04',name:'Gradient Descent + Backprop',era:'#22d3ee',
+      wall:'An MLP has thousands of weights. Nobody sets them by hand — the network must find them itself.',
+      ideas:['Loss measures wrongness as a landscape over the weights. Gradient descent: feel the local slope, step downhill, repeat. The learning rate η is the step size — the single most temperamental knob in deep learning.','Backprop is HOW the slope is computed: the chain rule, applied backward through the network, reusing intermediate results so every weight\u2019s gradient comes out of one backward sweep. Watch the red blame-pulses flow right-to-left.'],
+      watch:['η = 0.05: the ball crawls. η = 1.2: it rockets across the valley and DIVERGES.','It can also settle in the shallow LOCAL minimum — drop it a few times.','Switch the right-hand net to 8 layers: red pulses shrink to nothing by layer 1. Memorize that sight — it returns at station 6 as the reason RNNs forget.'],
+      math:['w ← w − η · ∂L/∂w','∂L/∂w₁ = ∂L/∂a · ∂a/∂z · ∂z/∂w₁   (chain rule, reused)'],
+      ctrls:[{t:'slider',k:'lr',label:'learning rate η',min:0.02,max:1.4,step:0.02,d:0.18},{t:'btn',k:'drop',label:'drop ball elsewhere'},{t:'seg',k:'depth',label:'backprop net depth',opts:['3-layer','8-layer'],d:'3-layer'}],
+      quiz:[{q:'η is too large. What happens?',opts:['Overshoots the valley, bounces, may diverge','Slower but always safer','It gets stuck in a local minimum'],ans:0,why:'Each step jumps past the minimum to the far slope — steps can GROW. You watched it happen.'},{q:'Backprop is best described as…',opts:['Chain rule + reuse: all gradients in one backward pass','A new loss function','Running the forward pass in reverse time'],ans:0,why:'Backprop computes ∂L/∂w for every weight efficiently. The optimizer (GD/SGD/Adam) then USES those gradients — two different jobs.'}],
+      take:'Forward: predict. Backward: assign blame. Step: descend. Repeat.',
+      trap:'Backprop ≠ the optimizer. Backprop computes gradients; gradient descent consumes them. Exams love this distinction.',
+      next:'point it at images — and watch the weights explode'}),
+    S({id:'cnn',num:'05',name:'The CNN',era:'#f59e0b',
+      wall:'Feed a 227×227 RGB image to a 1,000-unit dense layer: ~155M weights in layer one — and shifting the image by 1px scrambles everything it learned.',
+      ideas:['The pre-2012 pipeline (dense SIFT → bag-of-words → classifier) was hand-engineered stages that never talked to each other and barely learned. A CNN keeps the shape but LEARNS every stage. The classic recipe — LeNet-5, 1998 — is [Conv → ReLU → Pool] × N, flatten, [FC → ReLU] × N, FC. (Modern nets slip BatchNorm between conv and ReLU to keep deep stacks trainable.)','A conv layer slides one tiny filter over the image; each stop is a dot product + bias → one cell of an activation map. Same 9 weights at every position (weight sharing → translation equivariance). Real filters span the FULL channel depth — Cin×K×K each — and Cout of them stack into a Cout×H′×W′ output. First layers famously learn oriented edges and opposing colors.','Watch the two grids: conv fills the feature map, then the green window pools it. As data flows right, spatial size shrinks while channel count grows — total volume roughly preserved.'],
+      watch:['Switch kernels: vertical vs horizontal light up different strokes of the 7. Turn ReLU OFF to see the negative (red) responses it clips away.','Set padding to 1 (“same”): a zero ring appears and the map stays 14×14. Set stride 2: the kernel jumps — 14→6. The readout recomputes H′ live.','Let the conv scan finish — a 2×2 pool window then sweeps the feature map. Toggle max vs avg, and click a pooled cell.','Click any feature-map cell: it snaps to its 3×3 receptive field.','Hover the amber bars bottom-right: AlexNet → VGG → GoogLeNet → ResNet, the ImageNet cliff.'],
+      math:['(X∗K)ᵢⱼ = Σᵤ Σᵥ X[iS+u−P, jS+v−P] · K[u,v] + b','H′ = (H − K + 2P)/S + 1   ← memorize this','conv params = Cout·(Cin·K·K + 1) · pool params = 0','receptive field after L convs: 1 + L·(K−1)'],
+      mathNote:'A worked drill: 3×32×32 input, 10 filters 5×5, S=1, P=2 → (32−5+4)/1+1 = 32, so 10×32×32 out; params 10·(3·5·5+1) = 760; multiply-adds 75·10,240 ≈ 768K. (And don’t sweat convolution vs cross-correlation — everyone implements slide-and-dot.)',
+      ctrls:[{t:'seg',k:'kernel',label:'kernel (3×3)',opts:['vertical','horizontal','blur'],d:'vertical'},{t:'seg',k:'pad',label:'padding P',opts:['0','1 (same)'],d:'0'},{t:'seg',k:'stride',label:'stride S',opts:['1','2'],d:'1'},{t:'tog',k:'relu',label:'ReLU after conv',d:true},{t:'seg',k:'pool',label:'pooling',opts:['max','avg'],d:'max'}],
+      quiz:[{q:'Why does a conv layer need so few parameters?',opts:['The same kernel is reused at every position','Images are stored at lower precision','Pooling deletes most of the weights'],ans:0,why:'Weight sharing: Cout·(Cin·K·K+1) numbers scanned everywhere, instead of a separate weight per pixel-pair. Pooling, by the way, has NO weights at all.'},{q:'32×32 input, 5×5 filters, stride 1, pad 2. Output spatial size?',opts:['32×32 — P=(K−1)/2 is “same” padding','28×28 — convs always shrink by K−1','16×16 — padding halves the map'],ans:0,why:'(32−5+2·2)/1+1 = 32. Worked through: 10 such filters → a 10×32×32 volume, with 10·(3·5·5+1) = 760 parameters.'},{q:'Stack two conv layers with NOTHING between them. What have you built?',opts:['Effectively ONE conv layer — linear∘linear is linear','A deeper feature hierarchy','A residual block'],ans:0,why:'Station 01’s trap returns: without a nonlinearity the stack collapses into a single linear map. Hence the recipe: Conv → ReLU → Conv → ReLU…'}],
+      take:'Conv = a shared-weight stamp: H′ = (H−K+2P)/S + 1. Block = [Conv→ReLU→Pool]×N → FC head. Spatial ↓, channels ↑.',
+      trap:'Pooling downsamples with ZERO learnable weights (strided conv does it WITH weights). And don’t confuse conv’s equivariance (the feature moves with the input) with pooling’s invariance (the output barely moves).',
+      next:'images are fixed-size grids. Sentences aren\u2019t.'}),
+    S({id:'rnn',num:'06',name:'The RNN',era:'#34d399',
+      wall:'A sentence has ANY length, and order is meaning. A fixed-input net can\u2019t eat sequences.',
+      ideas:['Feed tokens one at a time into the SAME cell, which keeps a running summary: the hidden state h. Each step mixes the new word into h. That loop, unrolled over time, is just a deep feedforward net whose layers all share one W.','The green orb IS h. Watch its color absorb each word — and watch the influence bars above old words melt as new ones arrive.'],
+      watch:['Press UNROLL — the loop unspools into a chain. Same cell, repeated.','Step through the sentence; every cell flashes amber together: ONE weight matrix, reused across time (the CNN trick, but over time).','Set length 14 and run to the end: word 1\u2019s bar is nearly gone.','Toggle the backward pass: red gradients shrink at every hop — station 4\u2019s vanishing, wearing a time costume.'],
+      math:['hₜ = tanh(Wₕ hₜ₋₁ + Wₓ xₜ + b)   — same W every step','yₜ = g(V hₜ)'],
+      ctrls:[{t:'btn',k:'unroll',label:'UNROLL TIME'},{t:'seg',k:'len',label:'sentence length',opts:['4','8','14'],d:'8'},{t:'btn',k:'back',label:'show backward pass'}],
+      quiz:[{q:'The unrolled cells share…',opts:['All their weights','Only their biases','Nothing — each step learns its own'],ans:0,why:'One cell, applied repeatedly. That\u2019s why an RNN handles any length: there\u2019s nothing per-position to learn.'},{q:'Why does word 1 fade from h?',opts:['h is re-multiplied by W and squashed every step — old info shrinks geometrically','The network runs out of neurons','Longer sentences add noise'],ans:0,why:'Each step multiplies by Wₕ and squashes through tanh. After 14 hops, word 1\u2019s contribution (and its gradient) has been crushed ~0.8¹⁴ ≈ 4%. Vanishing gradient through TIME.'}],
+      take:'RNN = one cell + memory, applied recursively. Weight sharing across time; depth = sentence length.',
+      trap:'The vanishing gradient here is EXACTLY station 4\u2019s problem — unrolled time is depth. Say that sentence on the exam.',
+      next:'it forgets. Give memory a protected highway.'}),
+    S({id:'lstm',num:'07',name:'LSTM · GRU',era:'#34d399',
+      wall:'Backprop from hₜ to hₜ₋₁ multiplies by Wᵀ (and tanh′) — so h₀\u2019s gradient collects MANY factors of W. Largest singular value < 1 → VANISHING; > 1 → EXPLODING. Clipping patches exploding; vanishing needs a new cell.',
+      ideas:['1 · WHY: drag σmax(W) and send a gradient back through the plain RNN chain. Below 1 it starves before h₀ — nothing left to learn long-range links from. Above 1 it blows up, and only THAT case has a cheap fix (clipping). The only real cure for vanishing: change the architecture.','2 · THE CELL: same plug as station 06 — [hₜ₋₁, xₜ] in, hₜ out — so it drops into the same loop (see the ghost cells at t−1, t+1). Inside, ONE matrix W (4h×2h) emits four vectors: f (erase?), i (write?), g̃ (content, tanh −1..1), o (reveal?). The invention is a SECOND recurrent line, the cell state C, touched only by ⊙ and + — h stays the short-term working memory, C is the long-term store.','3 · THE MEMORY: C is a VECTOR — one editable channel per slot: Cₜ = f⊙Cₜ₋₁ + i⊙g̃, and hₜ = o⊙tanh(Cₜ) is its redacted public copy. Step the worked sentence and watch channels get kept, wiped, and overwritten independently.'],
+      watch:['View 1: σ=0.55 → the red orb starves before h₀; σ=1.5 → it slams into the clip ceiling. Clipping shrinks big gradients; nothing resurrects vanished ones.','View 2: step ▸ runs one tick — W fans out f, i, g̃, o. Then \u201csend gradient back\u201d: the C-orb passes + untouched and ⊙f barely dimmed, while the h-path orb is crushed inside W.','View 3: step \u201cBob is nice. Dan is evil.\u201d At \u201cDan\u201d, f≈0.07 wipes ONLY the subject channel; at \u201cevil\u201d, g̃=−0.9 flips the feeling channel red — writes are SIGNED.','Compare the racks: h = o⊙tanh(C), dark wherever the o gate stays shut.'],
+      math:['fₜ = σ(U_f xₜ + W_f hₜ₋₁) · iₜ = σ(U_i xₜ + W_i hₜ₋₁)','g̃ₜ = tanh(U_g xₜ + W_g hₜ₋₁)      (signed −1..1)','Cₜ = fₜ ⊙ Cₜ₋₁ + iₜ ⊙ g̃ₜ        ← only ⊙ and +','oₜ = σ(U_o xₜ + W_o hₜ₋₁),   hₜ = oₜ ⊙ tanh(Cₜ)'],
+      mathNote:'⊙ = element-wise; every gate is a VECTOR (memory management per channel). Implementation: stack [hₜ₋₁,xₜ]; one W (4h×2h) yields all of f,i,g̃,o. So ∂Cₜ/∂Cₜ₋₁ = diag(f): no W on the highway — uninterrupted gradient flow, the same trick ResNet uses.',
+      ctrls:[{t:'seg',k:'view',label:'view',opts:['1 · why?','2 · the cell','3 · the memory'],d:'1 · why?'},{t:'slider',k:'sing',label:'σmax of W',min:0.4,max:1.6,step:0.05,d:0.55,vis:'1'},{t:'btn',k:'back',label:'send gradient back',labels:{'2':'send gradient back — race both paths','3':'ride the gradient along C'}},{t:'btn',k:'restart',label:'restart sentence',vis:'3'}],
+      quiz:[{q:'Backprop from Cₜ to Cₜ₋₁ involves…',opts:['Only an element-wise multiply by f — no matrix W, no tanh chain','A multiply by Wᵀ and tanh′, like any RNN hop','A softmax over the channels'],ans:0,why:'Backprop along C meets ONLY an elementwise multiply by f — no matrix multiply by W. With f≈1 the gradient rides C almost unchanged — uninterrupted gradient flow.'},{q:'σmax(W)=1.3 and training diverges. The standard fix?',opts:['Gradient clipping — rescale when the norm is too big','Switch to an LSTM — that\u2019s what it\u2019s for','Add more tanh layers'],ans:0,why:'Trap inverted! EXPLODING has the cheap fix: clip. The LSTM exists for the case clipping can\u2019t touch — VANISHING (σmax < 1).'},{q:'\u201cDan\u201d replaces \u201cBob\u201d as subject. Which gate acts, and how?',opts:['Forget gate → ≈0 on the subject CHANNEL only','Output gate closes for the whole step','Input gate deletes the old value'],ans:0,why:'Exactly what the sim shows: at the new subject, f drops to ≈0 on that channel while staying ≈1 elsewhere — gates are vectors, per-channel memory management.'}],
+      take:'LSTM = the same RNN loop + a protected second state: Cₜ = f⊙Cₜ₋₁ + i⊙g̃ (edit, don\u2019t rewrite), hₜ = o⊙tanh(Cₜ). Gradients ride C through + and ⊙f only — that additive highway is the whole invention.',
+      trap:'hₜ ≠ Cₜ: h is SHORT-term and public (feeds the output and next step\u2019s W); C is LONG-term and private. And clipping ≠ LSTM: clipping fixes exploding, the LSTM fixes vanishing. (GRU: 2 gates, C merged into h — cheaper, usually as good.)',
+      next:'memory fixed. Now translate: n words in, m words out.'}),
+    S({id:'seq2seq',num:'08',name:'Encoder–Decoder (seq2seq)',era:'#38bdf8',
+      wall:'Translation: 4 French words in, 3 English words out. One RNN maps step-to-step — it can\u2019t change length.',
+      ideas:['Split the job: an ENCODER RNN reads the whole input and hands over one context vector c (its final state). A DECODER RNN starts from c and generates word after word until [END], feeding each output back in as the next input.','Look at the orb. The entire sentence — every word, the grammar, the nuance — must squeeze through that ONE fixed-size vector. For 4 words, fine. Now stretch it.'],
+      watch:['Watch 4 words funnel into c, then unfold into \u201cperson wearing hat\u201d.','Switch to 9 words: the orb flickers, early colors vanish from its mix, and the decoder starts writing \u201c???\u201d.','Hover the orb. Read its tooltip. That\u2019s the wall.'],
+      math:['encoder: z₁..zₙ = RNN(x₁..xₙ);   c = zₙ','decoder: yₜ = g(yₜ₋₁, hₜ₋₁, c)'],
+      mathNote:'Notation: encoder states z, decoder states h.',
+      ctrls:[{t:'seg',k:'len',label:'input length',opts:['4 words','9 words'],d:'4 words'},{t:'btn',k:'replay',label:'replay'}],
+      quiz:[{q:'Why do long sentences translate badly here?',opts:['A fixed-size c must hold an unbounded sentence','The decoder has too few layers','French word order is harder'],ans:0,why:'c is the ONLY bridge. Information not in c does not exist for the decoder — and c doesn\u2019t grow with the sentence.'}],
+      take:'Encoder–decoder = read-then-write, meeting at a single fixed-size vector c.',
+      trap:'The bottleneck is NOT \u201cRNNs forget\u201d (LSTM already helped that). Even a perfect summary has FIXED size while sentences don\u2019t. Different wall!',
+      next:'stop summarizing — let the decoder LOOK BACK'}),
+    S({id:'attn',num:'09',name:'RNN + Attention',era:'#38bdf8',
+      wall:'One vector for a whole sentence is lossy compression. The decoder should peek at the source while it writes.',
+      ideas:['Keep ALL encoder states z₀..z₃ (the standing pillars). At every decoder step: score each zᵢ against the decoder\u2019s state (alignment eₜᵢ = f_att, a tiny MLP), softmax into weights a (they sum to 1), and blend: a FRESH context cₜ = Σ aᵢzᵢ, rebuilt for every output word.','Writing \u201chat\u201d? cₜ is 71% \u201cchapeau\u201d. Nobody labels those alignments — f_att is trained end-to-end because everything is differentiable.'],
+      watch:['Step the decoder: the violet beams re-aim for every word.','Click any output word to replay its attention.','Toggle FIXED c to feel exactly what station 8 was missing.','The bar row above the pillars is one ROW of the attention matrix.'],
+      math:['eₜ,ᵢ = f_att(hₜ₋₁, zᵢ)      (alignment scores, scalars)','aₜ = softmax(eₜ)          (0 < a < 1, Σa = 1)','cₜ = Σᵢ aₜ,ᵢ · zᵢ    →    yₜ = g(yₜ₋₁, hₜ₋₁, cₜ)'],
+      mathNote:'Notation (Bahdanau et al. 2015): encoder z, decoder h, f_att is an MLP.',
+      ctrls:[{t:'tog',k:'fixed',label:'fixed c (station 8 mode)',d:false},{t:'btn',k:'restart',label:'restart decoding'}],
+      quiz:[{q:'Attention weights aₜ,ᵢ always…',opts:['Sum to 1 (softmax)','Sum to 0','Equal 1/n each'],ans:0,why:'Softmax normalizes the alignment scores into a probability distribution over source positions — that\u2019s what makes cₜ a weighted AVERAGE.'},{q:'What gets recomputed at every decoder step?',opts:['The context vector cₜ','The encoder states','f_att\u2019s parameters'],ans:0,why:'That\u2019s the whole upgrade: a fresh, per-word summary instead of one stale c. (Parameters only change during training.)'}],
+      take:'Attention = differentiable lookup: score → softmax → weighted sum. Learned end-to-end.',
+      trap:'Attention here did NOT replace the RNN — it\u2019s bolted onto one, and decoding is still sequential. Hold that thought for station 12.',
+      next:'if looking-up works this well… make it the WHOLE engine'}),
+    S({id:'selfattn',num:'10',name:'Self-Attention',era:'#a78bfa',
+      wall:'Attention linked decoder→encoder. New idea: let a sentence attend to ITSELF — every word gathers context from every other word, simultaneously.',
+      ideas:['Each token projects three roles from itself: Query (what am I looking for?), Key (what do I advertise?), Value (what do I hand over?) — via three learned matrices W_q, W_k, W_v. Score every pair qᵢ·kⱼ (scaled by √D), softmax, then blend values: yᵢ = a context-aware version of token i.','Watch \u201cit\u201d: its output orb literally takes on \u201canimal\u201d\u2019s color — pronoun resolved. And notice there\u2019s no recurrence anywhere: any word reaches any other in ONE hop, and all rows compute in parallel.'],
+      watch:['Click different tokens to move the query.','FIRE ALL — every token attends at once: that\u2019s the parallelism RNNs never had.','SHUFFLE the words: outputs travel unchanged — self-attention is order-blind!','Toggle positional encoding (stripes), then shuffle again.','Open the attention-matrix wall.'],
+      math:['qᵢ = xᵢW_q,  kᵢ = xᵢW_k,  vᵢ = xᵢW_v','eᵢⱼ = qᵢ · kⱼ / √D   →   aᵢ = softmax(eᵢ)','yᵢ = Σⱼ aᵢⱼ · vⱼ'],
+      mathNote:'√D keeps dot products from blowing up as dimensions grow, so softmax stays soft and gradients flow.',
+      ctrls:[{t:'btn',k:'all',label:'FIRE ALL TOKENS (parallel)'},{t:'btn',k:'shuffle',label:'shuffle word order'},{t:'tog',k:'pe',label:'positional encoding',d:false},{t:'btn',k:'matrix',label:'toggle attention matrix'}],
+      quiz:[{q:'In SELF-attention, Q, K and V come from…',opts:['The same sequence, via three learned projections','Three different sentences','Encoder, decoder and output respectively'],ans:0,why:'One sequence, three roles per token. Where Q vs K,V come from is THE distinguishing question — see next station.'},{q:'Why divide by √D?',opts:['Large dot products would saturate softmax and kill gradients','It makes computation faster','It normalizes vectors to unit length'],ans:0,why:'In high dimensions dot products grow like √D; unscaled, softmax goes one-hot and its gradients vanish. Scaling keeps it trainable.'}],
+      take:'Self-attention = every token querying every token: score → softmax → weighted sum of values. Order exists ONLY via positional encoding.',
+      trap:'Without PE it\u2019s permutation-equivariant: \u201cdog bites man\u201d = \u201cman bites dog\u201d. And PE is ADDED into embeddings, not appended.',
+      next:'same trick ACROSS two sequences'}),
+    S({id:'crossattn',num:'11',name:'Cross-Attention (+ masking)',era:'#a78bfa',
+      wall:'Self-attention looks within one sequence. Translation still needs English asking French: attention ACROSS sequences.',
+      ideas:['Identical machinery, one change of sourcing: Queries come from the decoder (what do I need next?), Keys and Values from the encoder output (what does the source offer?). This IS station 9\u2019s attention in QKV clothes — same softmax, same weighted sum, same 71% on \u201cchapeau\u201d.','The toggle also previews MASKING: in decoder self-attention, scores to future positions are set to −∞ before softmax (→ weight 0), so position t can\u2019t peek at t+1 during parallel training.'],
+      watch:['Toggle self ↔ cross and watch the K,V satellites jump between rows.','Click \u201chat\u201d in cross mode: same numbers as station 9.','In self mode, beams to the RIGHT are red stubs: −∞, masked.'],
+      math:['cross:  q = hW_q (decoder),  k,v = zW_k, zW_v (encoder)','self:   q, k, v all from the same sequence','mask:   eᵢⱼ = −∞  for j > i   →  aᵢⱼ = 0'],
+      ctrls:[{t:'seg',k:'mode',label:'attention mode',opts:['cross','self'],d:'cross'}],
+      quiz:[{q:'In cross-attention, K and V come from…',opts:['The encoder output','The decoder','Both, concatenated'],ans:0,why:'Q from decoder, K,V from encoder. One sentence answer: \u201ccross-attention is attention where queries and keys/values come from different sequences.\u201d'}],
+      take:'Self: Q,K,V from one sequence. Cross: Q from decoder, K,V from encoder. That\u2019s the entire difference.',
+      trap:'Cross-attention is NOT a new mechanism — it\u2019s stations 9+10 unified. If asked to compare, talk about SOURCING, not formulas.',
+      next:'all parts on the table. Assemble.'}),
+    S({id:'transformer',num:'12',name:'The Transformer',era:'#a78bfa',
+      wall:'Attention needs no recurrence — so drop the RNN entirely. \u201cAttention Is All You Need\u201d (2017).',
+      ideas:['ENCODER (left, ×N): multi-head self-attention → Add&Norm → FFN → Add&Norm. DECODER (right, ×N): MASKED self-attention → cross-attention to the encoder → FFN → linear+softmax. Embeddings + positional encoding feed both towers.','Multi-head: run attention h times in parallel low-dim subspaces — heads specialize in different relations — then concat. Residuals + LayerNorm (station 4!) keep very deep stacks trainable.','Click every block. Each one lights up with the station where you already learned it.'],
+      watch:['Press ASSEMBLE and read each part\u2019s origin tag as it flies in.','Click the MASKED block for the −∞ triangle; click multi-head for the 4-head fan.','Press RUN FLOW: the encoder eats all 4 French tokens AT ONCE; the decoder writes English one word per step, each output looping back in.'],
+      math:['Attention(Q,K,V) = softmax(QKᵀ / √D) · V','+ mask (decoder) · ×h heads · +residual · LayerNorm · +PE'],
+      ctrls:[{t:'btn',k:'assemble',label:'ASSEMBLE (with origin tags)'},{t:'btn',k:'flow',label:'RUN FLOW (encode ∥, decode step-by-step)'}],
+      parts:[{label:'self-attention → 10',go:10},{label:'masking → 11',go:11},{label:'cross-attention → 9 · 11',go:11},{label:'FFN = tiny MLP → 3',go:3},{label:'residual + norm → 4',go:4},{label:'positional encoding → 10',go:10},{label:'softmax head → 2',go:2}],
+      quiz:[{q:'Why does a Transformer train so much faster than an RNN?',opts:['No recurrence — all positions process in parallel','It has fewer parameters','Its vocabulary is smaller'],ans:0,why:'RNN step t must wait for t−1. Self-attention computes every position\u2019s output simultaneously as matrix multiplies — GPUs feast on that.'},{q:'Why mask the decoder\u2019s self-attention?',opts:['So position t can\u2019t see t+1… while training processes all positions at once','To save memory','Because the encoder requires it'],ans:0,why:'Training feeds the whole target sentence in parallel; the −∞ mask keeps each position honest (no peeking at the future). At INFERENCE it still generates one token at a time.'}],
+      take:'Transformer = attention + FFN + residuals + LayerNorm + PE, stacked. Nothing inside it is new to you.',
+      trap:'Inference is still autoregressive (word by word) — the parallel win is mainly TRAINING + the encoder. New wall: attention costs O(n²) in sequence length.',
+      next:'one branch left: nets that CREATE'}),
+    S({id:'gan',num:'13',name:'The GAN',era:'#f43f5e',
+      wall:'Everything so far maps input → answer. Different question entirely: can a network INVENT data that looks real?',
+      ideas:['Two networks, adversaries. The GENERATOR turns noise z into a fake sample. The DISCRIMINATOR scores samples: D(x) = P(real). D trains to catch fakes (real→1, fake→0); G trains to FOOL D — its gradients arrive through D\u2019s judgment. They escalate until fakes are indistinguishable and D is stuck at 0.5.','Note what G never touches: real data. The forger only ever learns from the detective\u2019s reactions.'],
+      watch:['Scrub the epoch slider: noise → blob → crisp 7, while D\u2019s needle sags toward 0.5.','Let it play: D-step (amber flash), G-step (violet flash + red gradient pulses flowing backward THROUGH D into G).','Hover the generator: it has never seen a single real image.'],
+      math:['min_G max_D   E[log D(x)] + E[log(1 − D(G(z)))]','G\u2019s practical loss: maximize log D(G(z))'],
+      ctrls:[{t:'slider',k:'epoch',label:'training epoch',min:0,max:100,step:1,d:8}],
+      quiz:[{q:'The generator\u2019s objective is to…',opts:['Make D output \u201creal\u201d on fake samples','Copy pixels from real images','Minimize D\u2019s accuracy on real data'],ans:0,why:'G climbs D\u2019s gradient toward \u201clooks real\u201d. It never compares to actual images — D IS its only teacher.'},{q:'At the ideal equilibrium…',opts:['D outputs ≈ 0.5 everywhere — it can\u2019t tell','D outputs 1 on everything','G\u2019s loss reaches exactly 0'],ans:0,why:'When fakes match the data distribution, the best possible discriminator is a coin flip. D ≈ 0.5 is SUCCESS, not failure.'}],
+      take:'GAN = forger vs detective, trained alternately; the forger learns from the detective\u2019s gradients.',
+      trap:'Training is famously unstable — MODE COLLAPSE: G prints the same safe fake forever. And D→0.5 at the end is the goal, not a bug.',
+      next:'back to the map — walk the spine once more'})
+    ];
+    return this._st;
+  }
+
+  componentDidMount(){
+    let saved=0, tour=-1;
+    try{ const s=localStorage.getItem('lineage.station'); const i=this.ST().findIndex(x=>x.id===s); if(i>=0) saved=i;
+      const q=localStorage.getItem('lineage.quiz'); if(q) this.state.quiz=JSON.parse(q)||{};
+      if(!localStorage.getItem('lineage.toured')) tour=0; }catch(e){ tour=0; }
+    this.setState({idx:saved, quiz:this.state.quiz, tour});
+    this._tp={b:-1,x:0,y:0}; this._pts=new Set();
+    window.addEventListener('pointerdown',e=>{ this._pts.add(e.pointerId); if(this.state.tour===1) this._tp={b:e.button,x:e.clientX,y:e.clientY}; },true);
+    window.addEventListener('pointermove',e=>{ if(this.state.tour!==1||this._tp.b<0) return;
+      if(this._pts.size>=2){ this.markTask('rdrag'); this._tp.b=-1; return; }
+      if(Math.hypot(e.clientX-this._tp.x,e.clientY-this._tp.y)>28){ this.markTask(this._tp.b===2?'rdrag':this._tp.b===0?'drag':null); this._tp.b=-1; } },true);
+    const up=e=>{ this._pts.delete(e.pointerId); this._tp.b=-1; };
+    window.addEventListener('pointerup',up,true); window.addEventListener('pointercancel',up,true);
+    window.addEventListener('wheel',()=>{ if(this.state.tour===1) this.markTask('scroll'); },{capture:true,passive:true});
+    this._t0=setInterval(()=>{
+      const w=document.querySelector('dl-world');
+      if(w&&w.setStation){ clearInterval(this._t0); this.world=w;
+        w.motion=(this.props.motion??'full');
+        w.addEventListener('dl-note',e=>{ clearTimeout(this._capT);
+          this.setState({cap:e.detail.text,capOn:true});
+          if(e.detail.ms!==0) this._capT=setTimeout(()=>this.setState({capOn:false}),e.detail.ms||2800); });
+        w.addEventListener('dl-readout',e=>{ const it=(e.detail.items||[]).map(p=>({k:p[0],v:String(p[1])})); this.setState({readouts:it}); });
+        w.addEventListener('dl-goto',e=>{ const i=this.ST().findIndex(x=>x.id===e.detail.id); if(i>=0) this.goTo(i); });
+        w.addEventListener('dl-block',e=>{ this.setState({block:e.detail.key}); });
+        w.setStation(this.ST()[this.state.idx].id);
+        this.setState({ready:true});
+      }
+    },150);
+  }
+  componentWillUnmount(){ clearInterval(this._t0); clearTimeout(this._capT); }
+  componentDidUpdate(pp){ if(this.world&&pp.motion!==this.props.motion) this.world.motion=(this.props.motion??'full'); }
+
+  goTo(i){
+    this.setState({idx:i, playing:true, readouts:[], block:null, capOn:false});
+    if(this.panelScrollRef&&this.panelScrollRef.current) this.panelScrollRef.current.scrollTop=0;
+    if(this.world){ this.world.setStation(this.ST()[i].id); this.world.setPlaying(true); }
+    try{ localStorage.setItem('lineage.station',this.ST()[i].id); }catch(e){}
+  }
+  ctrlVal(st,c){ const k=st.id+':'+c.k; return this.state.ctrl[k]!==undefined?this.state.ctrl[k]:c.d; }
+  setCtrl(st,c,v,fire){ const k=st.id+':'+c.k;
+    this.setState({ctrl:{...this.state.ctrl,[k]:v}});
+    if(this.world) this.world.setParam(c.k, fire!==undefined?fire:v); }
+
+  BLOCKS(){ return {
+    emb:{name:'Embedding',text:'Each token becomes a learned D-dimensional vector — a lookup table trained with everything else.'},
+    pe:{name:'Positional encoding',text:'A sinusoid position pattern ADDED into each embedding. Without it, self-attention cannot see order.',go:10,gl:'revisit station 10 →'},
+    mhsa:{name:'Multi-head self-attention',text:'h parallel attentions in subspaces; heads specialize (syntax, adjacency, coreference…), outputs concat.',go:10,gl:'revisit station 10 →'},
+    an:{name:'Add & Norm',text:'Residual bypass + LayerNorm — the gradient highway. Same medicine as station 4\u2019s vanishing problem.',go:4,gl:'revisit station 4 →'},
+    ffn:{name:'Feed-forward network',text:'A tiny 2-layer MLP applied to each position independently. Station 3, miniaturized and repeated.',go:3,gl:'revisit station 3 →'},
+    mmhsa:{name:'Masked self-attention',text:'Future scores set to −∞ → softmax 0. Lets training process all target positions in parallel without cheating.',go:11,gl:'revisit station 11 →'},
+    cross:{name:'Cross-attention',text:'Q from decoder, K,V from encoder output. Station 9\u2019s idea in QKV form — the translation bridge.',go:11,gl:'revisit station 11 →'},
+    head:{name:'Linear + softmax',text:'Project to vocabulary size, softmax, pick the next token. The same softmax classifier idea you\u2019ve seen since the start.'}
+  }; }
+
+  markTask(k){ if(!k||this.state.tourTasks[k]) return; this.setState(s=>({tourTasks:{...s.tourTasks,[k]:true}})); }
+  tourVals(){
+    const steps=this.TOUR(), ti=this.state.tour, on=ti>=0&&ti<steps.length;
+    if(!on) return { tourOn:false, tourBox:{}, tourCard:{}, tourDots:[], tourNum:'', tourTitle:'', tourText:'', tourHasBack:false, tourNextLabel:'', tourNext:()=>{}, tourBack:()=>{}, tourSkip:()=>{}, tourChecklist:false, tourTasks:[], tourNextDisabled:false, tourNextStyle:'' };
+    const s=steps[ti], tk=this.state.tourTasks;
+    const locked=!!s.tasks&&!(tk.drag&&tk.scroll&&tk.rdrag);
+    const mouse=(hl,done)=>{ const onC=done?'#7ce8bd':'#67e8f9';
+      const btn=(side,rad)=>'position:absolute; top:1px; '+side+':1px; width:7px; height:10px; border-radius:'+rad+'; background:'+(hl===side?onC:'rgba(70,88,122,0.35)')+(hl===side?'; box-shadow:0 0 8px '+onC:'')+';';
+      return { leftStyle:btn('left','7px 2px 2px 2px'), rightStyle:btn('right','2px 7px 2px 2px'),
+        wheelStyle:'position:absolute; top:2px; left:50%; transform:translateX(-50%); width:3px; height:8px; border-radius:2px; background:'+(hl==='wheel'?onC:'#46587a')+(hl==='wheel'?'; box-shadow:0 0 8px '+onC:'')+';' }; };
+    const tasks=[ {key:'drag',label:'Left-drag to orbit',hl:'left'}, {key:'scroll',label:'Scroll to zoom',hl:'wheel'}, {key:'rdrag',label:'Right-drag (or two-finger drag) to pan',hl:'right'} ]
+      .map(t=>{ const done=!!tk[t.key]; return { label:t.label, mark:done?'\u2713':'', ...mouse(t.hl,done),
+        rowStyle:'display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:9px; transition:all 0.25s; border:1px solid '+(done?'rgba(124,232,189,0.45)':'rgba(148,163,184,0.2)')+'; background:'+(done?'rgba(124,232,189,0.08)':'rgba(16,24,44,0.6)')+';',
+        boxStyle:'width:16px; height:16px; border-radius:5px; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#07202b; transition:all 0.25s; border:1.5px solid '+(done?'#7ce8bd':'#46587a')+'; background:'+(done?'#7ce8bd':'transparent')+';' }; });
+    const end=()=>{ try{ localStorage.setItem('lineage.toured','1'); }catch(e){} this.setState({tour:-1}); };
+    let box;
+    if(s.box==='lesson'||s.box==='ctrl'){
+      const el=(s.box==='ctrl'?this.ctrlPanelRef:this.lessonPanelRef).current;
+      if(el){ const r=el.getBoundingClientRect(); box={l:(r.left-6)+'px',t:(r.top-6)+'px',w:(r.width+12)+'px',h:(r.height+12)+'px'}; }
+      else box={l:'calc(100% - min(408px, 40vw))',t:s.box==='ctrl'?'54%':'50px',w:'min(400px, 39vw)',h:s.box==='ctrl'?'44%':'52%'};
+    }
+    else box=s.box?{ l:s.box.l||'auto', t:s.box.t||'auto', w:s.box.w, h:s.box.h,
+      ...(s.box.r?{l:'calc(100% - '+s.box.w+' - '+s.box.r+')'}:{}),
+      ...(s.box.b?{t:'calc(100% - '+s.box.h+' - '+s.box.b+')'}:{}) }
+      :{ l:'50%', t:'50%', w:'0px', h:'0px' };
+    const c=s.card||{};
+    const card={ l:c.l||'auto', t:c.t||'auto', r:c.r||'auto', b:c.b||'auto', tf:'none' };
+    if(c.c){ card.l='50%'; card.t='50%'; card.tf='translate(-50%,-50%)'; }
+    else if(c.cx){ card.l='50%'; card.tf='translateX(-50%)'; }
+    return {
+      tourOn:true, tourBox:box, tourCard:card,
+      tourNum:(ti+1)+' / '+steps.length, tourTitle:s.title, tourText:s.text,
+      tourDots:steps.map((_,i)=>({style:'width:7px; height:7px; border-radius:50%; transition:background 0.2s; background:'+(i===ti?'#67e8f9':i<ti?'rgba(103,232,249,0.45)':'rgba(148,163,184,0.25)')+';'})),
+      tourHasBack:ti>0, tourBack:()=>this.setState({tour:ti-1}),
+      tourChecklist:!!s.tasks, tourTasks:tasks, tourNextDisabled:locked,
+      tourNextStyle:"font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:700; color:#07202b; background:#67e8f9; border:none; padding:7px 14px; border-radius:9px; transition:opacity 0.25s;"+(locked?' opacity:0.3; cursor:not-allowed;':' cursor:pointer;'),
+      tourNextLabel:locked?'try all 3 first':ti===steps.length-1?'start exploring →':'next →',
+      tourNext:()=>{ if(locked) return; if(ti===steps.length-1) end(); else this.setState({tour:ti+1}); },
+      tourSkip:end
+    };
+  }
+
+  renderVals(){
+    const stations=this.ST(), idx=this.state.idx, st=stations[idx];
+    const era=st.era;
+    const chips=stations.map((s,i)=>{
+      const active=i===idx;
+      const answered=(s.quiz||[]).every((q,qi)=>this.state.quiz[s.id+':'+qi]!==undefined)&&(s.quiz||[]).length>0;
+      return { text:s.num, title:s.name, go:()=>this.goTo(i),
+        style:'font-family:\'IBM Plex Mono\',monospace; font-size:11.5px; padding:5px 8px; border-radius:8px; cursor:pointer; border:1px solid '+(active?s.era:'rgba(148,163,184,0.22)')+'; background:'+(active?s.era:'rgba(10,15,28,0.8)')+'; color:'+(active?'#0a0f1c':(answered?s.era:'#9fb4dd'))+'; font-weight:'+(active?'700':'500')+';' };
+    });
+    let total=0, got=0;
+    stations.forEach(s=>(s.quiz||[]).forEach((q,qi)=>{ total++; if(this.state.quiz[s.id+':'+qi]===q.ans) got++; }));
+    const viewDef=(st.ctrls||[]).find(c=>c.k==='view');
+    const viewCh=viewDef?String(this.ctrlVal(st,viewDef)).charAt(0):'';
+    const ctrls=(st.ctrls||[]).filter(c=>!c.vis||c.vis===viewCh).map(c=>{
+      const val=this.ctrlVal(st,c), clabel=(c.labels&&c.labels[viewCh])||c.label;
+      if(c.t==='slider') return { isSlider:true,isSeg:false,isBtn:false,isTog:false, label:clabel, min:c.min, max:c.max, step:c.step, val:val, valStr:(+val).toFixed(c.step<1?2:0), onChange:(e)=>this.setCtrl(st,c,+e.target.value) };
+      if(c.t==='seg') return { isSeg:true,isSlider:false,isBtn:false,isTog:false, label:clabel, opts:c.opts.map(o=>({ label:o, pick:()=>this.setCtrl(st,c,o),
+        style:'font-family:\'IBM Plex Mono\',monospace; font-size:11.5px; padding:5px 10px; border-radius:8px; cursor:pointer; border:1px solid '+(val===o?era:'rgba(148,163,184,0.25)')+'; background:'+(val===o?era:'rgba(16,24,44,0.7)')+'; color:'+(val===o?'#0a0f1c':'#c6d2ea')+'; font-weight:600;' })) };
+      if(c.t==='tog'){ const on=!!val; return { isTog:true,isSlider:false,isSeg:false,isBtn:false, togLabel:clabel+(on?'  · ON':'  · off'), flip:()=>this.setCtrl(st,c,!on),
+        style:'font-family:\'IBM Plex Mono\',monospace; font-size:12px; font-weight:600; padding:7px 12px; border-radius:9px; cursor:pointer; text-align:left; border:1px solid '+(on?'#34d399':'rgba(148,163,184,0.25)')+'; background:'+(on?'rgba(52,211,153,0.16)':'rgba(16,24,44,0.7)')+'; color:'+(on?'#7ce8bd':'#c6d2ea')+';' }; }
+      return { isBtn:true,isSlider:false,isSeg:false,isTog:false, label:clabel, fire:()=>this.setCtrl(st,c,Date.now(),Date.now()) };
+    });
+    const quiz=(st.quiz||[]).map((q,qi)=>{
+      const key=st.id+':'+qi, picked=this.state.quiz[key], answered=picked!==undefined;
+      return { q:q.q, why:q.why, showWhy:answered,
+        opts:q.opts.map((o,oi)=>{
+          let bg='rgba(16,24,44,0.7)', bd='rgba(148,163,184,0.22)', col='#c6d2ea';
+          if(answered&&oi===q.ans){ bg='rgba(52,211,153,0.18)'; bd='#34d399'; col='#b9f5dd'; }
+          else if(answered&&oi===picked&&picked!==q.ans){ bg='rgba(244,63,94,0.15)'; bd='#f43f5e'; col='#ffc2cd'; }
+          return { label:(answered&&oi===q.ans?'✓ ':answered&&oi===picked?'✗ ':'')+o,
+            pick:()=>{ if(this.state.quiz[key]!==undefined) return;
+              const nq={...this.state.quiz,[key]:oi}; this.setState({quiz:nq});
+              try{ localStorage.setItem('lineage.quiz',JSON.stringify(nq)); }catch(e){} },
+            style:'text-align:left; font-size:12.5px; line-height:1.45; padding:8px 11px; border-radius:9px; cursor:pointer; border:1px solid '+bd+'; background:'+bg+'; color:'+col+';' };
+        }) };
+    });
+    const blocks=this.BLOCKS(), bl=this.state.block?blocks[this.state.block]:null;
+    const next=idx<stations.length-1?stations[idx+1]:null;
+    return {
+      chips, era, num:st.num, name:st.name,
+      score:got+' / '+total,
+      panelOpen:this.state.panelOpen, togglePanel:()=>this.setState({panelOpen:!this.state.panelOpen}),
+      panelBtnLabel:this.state.panelOpen?'hide lesson ▸':'◂ show lesson',
+      hasWall:!!st.wall, wall:st.wall||'',
+      ideas:st.ideas||[], hasWatch:!!(st.watch&&st.watch.length), watch:st.watch||[],
+      showMath:!!(st.math&&st.math.length)&&(this.props.showEquations??true), math:st.math||[], mathNote:st.mathNote||false,
+      hasCtrls:ctrls.length>0, noCtrls:ctrls.length===0, ctrls,
+      lessonPanelRef:this.lessonPanelRef, ctrlPanelRef:this.ctrlPanelRef,
+      hasReadouts:this.state.readouts.length>0, readouts:this.state.readouts,
+      quiz,
+      hasParts:!!st.parts, parts:(st.parts||[]).map(p=>({label:p.label, go:()=>this.goTo(p.go)})),
+      take:st.take, hasTrap:!!st.trap, trap:st.trap||'',
+      hasPrev:idx>0, goPrev:()=>this.goTo(idx-1),
+      hasNext:!!next, nextLabel:next?('\u201c'+st.next+'\u201d → '+next.num+' '+next.name):'', goNext:()=>next&&this.goTo(idx+1),
+      playLabel:this.state.playing?'❚❚ pause':'▶ play',
+      togglePlay:()=>{ const p=!this.state.playing; this.setState({playing:p}); this.world&&this.world.setPlaying(p); },
+      canStep:['rnn','lstm','attn'].includes(st.id),
+      doStep:()=>this.world&&this.world.step(),
+      doReplay:()=>this.goTo(idx),
+      capOn:this.state.capOn, capText:this.state.cap,
+      dismissCap:()=>{ clearTimeout(this._capT); this.setState({capOn:false}); },
+      startTour:()=>this.setState({tour:0, tourTasks:{drag:false,scroll:false,rdrag:false}}),
+      ...this.tourVals(),
+      hasBlock:!!bl, blockName:bl?bl.name:'', blockText:bl?bl.text:'',
+      blockJumpLabel:bl&&bl.gl?bl.gl:false, blockJump:()=>{ if(bl&&bl.go!==undefined) this.goTo(bl.go); },
+      blockClose:()=>this.setState({block:null}),
+      panelScrollRef:this.panelScrollRef
+    };
+  }
+}
+</script>
+</body>
+</html>

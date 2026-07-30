@@ -1,0 +1,12 @@
+# Private / local-only
+CLAUDE.md
+course_notes.txt
+uploads/
+.thumbnail
+
+# Windows/WSL download artifacts
+*Zone.Identifier
+
+# OS junk
+.DS_Store
+Thumbs.db
