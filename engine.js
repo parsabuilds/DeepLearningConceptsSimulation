@@ -80,13 +80,14 @@ class DLWorld extends HTMLElement {
     this.renderer.domElement.style.cursor=o&&o.userData.onClick?'pointer':'grab';
     if(o&&o.userData.tip){ const t=typeof o.userData.tip==='function'?o.userData.tip(r.h):o.userData.tip;
       if(t){ this.tip.textContent=t; this.tip.style.opacity=1;
-        this.tip.style.left=Math.min(e.clientX-b.left+14,b.width-270)+'px'; this.tip.style.top=(e.clientY-b.top+12)+'px'; }
+        const z=b.width/(this.renderer.domElement.clientWidth||b.width)||1;
+        this.tip.style.left=Math.min((e.clientX-b.left)/z+14,b.width/z-270)+'px'; this.tip.style.top=((e.clientY-b.top)/z+12)+'px'; }
       else this.tip.style.opacity=0; }
     else this.tip.style.opacity=0;
     if(this._hover&&this._hover!==o&&this._hover.userData.onHover) this._hover.userData.onHover(false);
     if(o&&o.userData.onHover&&this._hover!==o) o.userData.onHover(true);
     this._hover=o; }
   _onClick(e){ this._ndc(e); const r=this._cast(); if(r&&r.o.userData.onClick) r.o.userData.onClick(r.o,r.h); }
-  _resize(){ const w=this.clientWidth||2,h=this.clientHeight||2; this.renderer.setSize(w,h,false); this.camera.aspect=w/h; this.camera.updateProjectionMatrix(); }
+  _resize(){ const w=this.clientWidth||2,h=this.clientHeight||2; const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1; this.renderer.setPixelRatio(Math.min(devicePixelRatio,2)*z); this.renderer.setSize(w,h,false); this.camera.aspect=w/h; this.camera.updateProjectionMatrix(); }
 }
 customElements.define('dl-world',DLWorld);

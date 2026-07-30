@@ -1,4 +1,4 @@
-# The Lineage — deep learning, one wall at a time
+# The Lineage — a 3D museum of deep learning
 
 An interactive 3D museum that teaches the lineage of deep learning architectures. Walk through 14 stations — from a single neuron to the Transformer — where every concept is a live, clickable simulation: fire a perceptron, watch gradients flow backward, feed tokens through an LSTM, and see self-attention resolve a pronoun in real time.
 
