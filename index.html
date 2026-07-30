@@ -290,9 +290,9 @@ class Component extends DCLogic {
     { title:'Welcome to The Lineage', text:'13 interactive 3D scenes tell one story: every deep-learning architecture exists because the previous one hit a wall. This 60-second tour shows you the ropes.',
       box:null, card:{c:true} },
     { title:'Move around the 3D world', text:'Do all three moves in the world behind this card — each one ticks itself off. Next unlocks when you\u2019ve done them all.',
-      box:{l:'25%',t:'25%',w:'50%',h:'50%'}, card:{b:'24px',l:'24px'}, dim:false, tasks:true },
+      box:{l:'1.5%',t:'6%',w:'97%',h:'88%'}, card:{b:'24px',l:'24px'}, dim:false, tasks:true },
     { title:'Hover & click things', text:'Almost everything in the 3D space is alive: hover any object for a tooltip explaining what it is. On the map, each glass globe previews what\u2019s inside its station — click one to travel there. The red tags between islands are the \u201cwhy was this invented?\u201d answers.',
-      box:{l:'25%',t:'25%',w:'50%',h:'50%'}, card:{b:'12%',cx:true}, dim:false },
+      box:{l:'1.5%',t:'6%',w:'97%',h:'88%'}, card:{b:'12%',cx:true}, dim:false },
     { title:'Jump between stations', text:'These numbered chips are the 14 stations (00 = the map). Click any to jump. A chip turns its era color once you\u2019ve answered that station\u2019s quiz.',
       box:{l:'8px',t:'8px',w:'540px',h:'118px'}, card:{l:'24px',t:'140px'} },
     { title:'Read the lesson panel', text:'The upper-right panel is the lesson: the wall that broke the previous idea, the fix, the exact equations for the exam, a quiz, and the takeaway. Scroll it — then use NEXT WALL at the bottom to walk the story in order.',
@@ -525,7 +525,7 @@ class Component extends DCLogic {
     let box;
     if(s.box==='lesson'||s.box==='ctrl'){
       const el=(s.box==='ctrl'?this.ctrlPanelRef:this.lessonPanelRef).current;
-      if(el){ const r=el.getBoundingClientRect(); box={l:(r.left-6)+'px',t:(r.top-6)+'px',w:(r.width+12)+'px',h:(r.height+12)+'px'}; }
+      if(el){ const z=parseFloat(getComputedStyle(document.documentElement).zoom)||1; const r=el.getBoundingClientRect(); box={l:(r.left/z-6)+'px',t:(r.top/z-6)+'px',w:(r.width/z+12)+'px',h:(r.height/z+12)+'px'}; }
       else box={l:'calc(100% - min(408px, 40vw))',t:s.box==='ctrl'?'54%':'50px',w:'min(400px, 39vw)',h:s.box==='ctrl'?'44%':'52%'};
     }
     else box=s.box?{ l:s.box.l||'auto', t:s.box.t||'auto', w:s.box.w, h:s.box.h,
